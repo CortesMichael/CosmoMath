@@ -1,3 +1,4 @@
+# importar biblioteca pygame
 import pygame
 
 # inicializar o pygame
