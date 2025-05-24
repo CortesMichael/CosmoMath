@@ -1,5 +1,6 @@
-# importar biblioteca pygame
+# importar bibliotecas e classes
 import pygame
+from Sprites import BRANCO
 
 # inicializar o pygame
 pygame.init()
@@ -7,7 +8,8 @@ pygame.init()
 # dimensões da tela
 tamanho_tela = (800, 600)
 tela = pygame.display.set_mode(tamanho_tela)
-pygame.display.set_caption("Spaceship Game")
+tempo = pygame.time.Clock()
+pygame.display.set_caption("CosmoMath")
 
 # manter a tela aberta
 rodando = True
@@ -16,7 +18,11 @@ while rodando:
         if evento.type == pygame.QUIT:
             rodando = False
 
-    tela.fill((0, 0, 0))  # pinta o fundo de preto
-    pygame.display.update()
+    # pinta o fundo de preto
+    tela.fill((BRANCO))  
+    
+    pygame.display.flip()
+    
+    tempo.tick(60)
 
 pygame.quit()
