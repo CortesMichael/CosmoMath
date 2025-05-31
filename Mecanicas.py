@@ -11,7 +11,3 @@ def mover_circulo (teclas, x, y, velocidade = 10):
     if teclas[ord('d')]:  # direita
         x += velocidade
     return x, y
-
-def seguir_mouse ():
-    x, y = pygame.mouse.get_pos()
-    return x, y
