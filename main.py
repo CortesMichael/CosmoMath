@@ -1,36 +1,30 @@
-# importar bibliotecas e classes
 import pygame
 from Sprites import *
 from Mecanicas import *
 
-# inicializar o pygame
 pygame.init()
 
-tamanho_tela = (800, 600)
-tela = pygame.display.set_mode(tamanho_tela)
-tempo = pygame.time.Clock()
+# Tela e controle
+tela = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("CosmoMath")
+tempo = pygame.time.Clock()
 
-def menu():
-    while True:
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                if botao.collidepoint(evento.pos):
-                    return
+# Estados do jogo
+MENU = "menu"
+JOGO = "jogo"
+GAME_OVER = "game_over"
+estado = MENU
 
-        botao = desenhar_menu(tela)
-        pygame.display.flip()
-        tempo.tick(60)
+# Pontuação
+pontos = 0
+fonte_pontos = pygame.font.SysFont("Comic Sans", 28)
 
-# tela de menu
-menu()
+# Nave
+sprite_nave = carregar_nave()
+x_nave, y_nave = 400, 500
 
-# jogo
-sprite = carregar_nave()
-x, y = 400, 300
+# Asteroide
+asteroide = Asteroide(400, 0, 1.5)
 
 rodando = True
 while rodando:
@@ -38,11 +32,68 @@ while rodando:
         if evento.type == pygame.QUIT:
             rodando = False
 
-    teclas = pygame.key.get_pressed()
-    x, y = mover_circulo(teclas, x, y)
+        if estado == MENU:
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if botao.collidepoint(mouse_pos):
+                    estado = JOGO  # inicia o jogo
 
+        elif estado == JOGO:
+            if evento.type == pygame.KEYDOWN:
+                if evento.unicode.isalpha():
+                    letra = evento.unicode.lower()
+                    palavra = asteroide.palavra
+                    if asteroide.letras_digitadas < len(palavra):
+                        proxima = palavra[asteroide.letras_digitadas]
+                        if letra == proxima:
+                            asteroide.letras_digitadas += 1
+
+                    # Se completou a palavra, soma pontos e reinicia
+                    if asteroide.letras_digitadas == len(palavra):
+                        pontos += 1
+                        asteroide = Asteroide(400, 0, 1.5)
+                        
+            # Verificar colisão com a nave
+            distancia = ((asteroide.x - x_nave) ** 2 + (asteroide.y - y_nave) ** 2) ** 0.5
+            if distancia < 60: 
+                estado = GAME_OVER
+
+        elif estado == GAME_OVER:
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if botao_gameover.collidepoint(mouse_pos):
+                    # Reinicia o jogo
+                    pontos = 0
+                    asteroide = Asteroide(400, 0, 1.5)
+                    estado = JOGO
+                    
+    # Lógica de exibição
     tela.fill(PRETO)
-    desenhar_nave(tela, sprite, x, y)
+
+    if estado == MENU:
+        botao = desenhar_menu(tela)
+
+    elif estado == JOGO:
+        asteroide.atualizar(tela)
+        desenhar_nave(tela, sprite_nave, x_nave, y_nave)
+        
+        # Atualiza asteroide e nave
+        asteroide.atualizar(tela)
+        desenhar_nave(tela, sprite_nave, x_nave, y_nave)
+        
+        rect_nave = sprite_nave.get_rect(center=(x_nave, y_nave))
+        rect_asteroide = asteroide.sprite.get_rect(center=(asteroide.x, asteroide.y))
+
+        if verificar_colisao(rect_nave, rect_asteroide):
+            estado = GAME_OVER
+
+        # Mostra pontuação no canto
+        texto_pontos = fonte_pontos.render(f"Pontos: {pontos}", True, BRANCO)
+        tela.blit(texto_pontos, (10, 10))
+        
+    elif estado == GAME_OVER:
+        botao_gameover = desenhar_game_over(tela, pontos)
+
     pygame.display.flip()
     tempo.tick(60)
 
