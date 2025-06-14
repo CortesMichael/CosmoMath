@@ -22,19 +22,6 @@ class Asteroide:
     def desenhar(self, tela):
         # desenha o sprite do asteroide
         desenhar_bola(tela, self.sprite, self.x, self.y)
-
-        # destaca letras 
-        palavra_formatada = ""
-        for i, letra in enumerate(self.palavra):
-            if i < self.letras_digitadas:
-                palavra_formatada += f"[{letra}]"
-            else:
-                palavra_formatada += letra
-
-        texto_render = self.fonte.render(palavra_formatada, True, (255, 255, 255))
-        texto_x = self.x - texto_render.get_width() // 2
-        texto_y = self.y - 70
-        tela.blit(texto_render, (texto_x, texto_y))
         
 def mover_circulo (teclas, x, y, velocidade = 10):
 

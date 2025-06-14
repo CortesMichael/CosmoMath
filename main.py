@@ -78,7 +78,6 @@ while rodando:
         
     elif estado == GAME_OVER:
         botao_gameover = desenhar_game_over(tela, pontos)
-
     pygame.display.flip()
     
     tempo.tick(60)
