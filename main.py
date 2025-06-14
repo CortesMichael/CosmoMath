@@ -39,6 +39,7 @@ while rodando:
                     estado = JOGO  # inicia o jogo
 
         elif estado == JOGO:
+            
             if evento.type == pygame.KEYDOWN:
                 if evento.unicode.isalpha():
                     letra = evento.unicode.lower()

@@ -10,7 +10,7 @@ class Asteroide:
         self.palavra = palavra_aleatoria()
         self.letras_digitadas = 0
         self.sprite = carregar_bola()
-        self.fonte = pygame.font.SysFont("Arial", 28, bold=True)
+        self.fonte = pygame.font.SysFont("Comic Sans", 28, bold=True)
     
     def mover(self):
         self.y += self.velocidade
@@ -23,7 +23,7 @@ class Asteroide:
         # desenha o sprite do asteroide
         desenhar_bola(tela, self.sprite, self.x, self.y)
 
-        # destaca letras digitadas
+        # destaca letras 
         palavra_formatada = ""
         for i, letra in enumerate(self.palavra):
             if i < self.letras_digitadas:
