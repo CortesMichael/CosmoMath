@@ -26,6 +26,7 @@ x_nave, y_nave = 400, 500
 # Asteroide
 asteroide = Asteroide(400, 0, 1.5)
 
+# manter a tela aberta
 rodando = True
 while rodando:
     for evento in pygame.event.get():
@@ -41,23 +42,9 @@ while rodando:
         elif estado == JOGO:
             
             if evento.type == pygame.KEYDOWN:
-                if evento.unicode.isalpha():
-                    letra = evento.unicode.lower()
-                    palavra = asteroide.palavra
-                    if asteroide.letras_digitadas < len(palavra):
-                        proxima = palavra[asteroide.letras_digitadas]
-                        if letra == proxima:
-                            asteroide.letras_digitadas += 1
-
-                    # Se completou a palavra, soma pontos e reinicia
-                    if asteroide.letras_digitadas == len(palavra):
-                        pontos += 1
-                        asteroide = Asteroide(400, 0, 1.5)
-                        
-            # Verificar colisão com a nave
-            distancia = ((asteroide.x - x_nave) ** 2 + (asteroide.y - y_nave) ** 2) ** 0.5
-            if distancia < 60: 
-                estado = GAME_OVER
+                teclas = pygame.key.get_pressed()
+                x, y = mover_circulo(teclas, x, y)
+                pass
 
         elif estado == GAME_OVER:
             if evento.type == pygame.MOUSEBUTTONDOWN:
@@ -85,9 +72,6 @@ while rodando:
         rect_nave = sprite_nave.get_rect(center=(x_nave, y_nave))
         rect_asteroide = asteroide.sprite.get_rect(center=(asteroide.x, asteroide.y))
 
-        if verificar_colisao(rect_nave, rect_asteroide):
-            estado = GAME_OVER
-
         # Mostra pontuação no canto
         texto_pontos = fonte_pontos.render(f"Pontos: {pontos}", True, BRANCO)
         tela.blit(texto_pontos, (10, 10))
@@ -96,6 +80,7 @@ while rodando:
         botao_gameover = desenhar_game_over(tela, pontos)
 
     pygame.display.flip()
+    
     tempo.tick(60)
 
 pygame.quit()

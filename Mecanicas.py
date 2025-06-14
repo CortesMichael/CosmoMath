@@ -36,5 +36,10 @@ class Asteroide:
         texto_y = self.y - 70
         tela.blit(texto_render, (texto_x, texto_y))
         
-def verificar_colisao(nave_rect, asteroide_rect):
-    return nave_rect.colliderect(asteroide_rect)
+def mover_circulo (teclas, x, y, velocidade = 10):
+
+    if teclas[ord('a')]:  # esquerda
+        x -= velocidade
+    if teclas[ord('d')]:  # direita
+        x += velocidade
+    return x, y

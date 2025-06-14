@@ -2,7 +2,6 @@ import pygame
 
 PRETO = (0, 0, 0)
 BRANCO = (255, 255, 255)
-AZUL = (100, 100, 255)
 
 def carregar_nave():
     nave = pygame.image.load("assets/imagens/spaceship.png").convert_alpha()
