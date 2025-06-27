@@ -121,43 +121,86 @@ except:
 def tela_inicial():
     TELA.fill(PRETO)
 
-    # Exibe logo
-    TELA.blit(logo_img, (LARGURA//2 - logo_img.get_width()//2, 100))
-
-    # Botão START
+    # Posições
+    logo_y = 200
+    y_botao = 450
     largura_botao = 200
     altura_botao = 60
     x_botao = LARGURA // 2 - largura_botao // 2
-    y_botao = 400
     botao_rect = pygame.Rect(x_botao, y_botao, largura_botao, altura_botao)
 
-    # Detecta posição do mouse para hover
-    mouse_pos = pygame.mouse.get_pos()
-    mouse_hover = botao_rect.collidepoint(mouse_pos)
-
-    # Cores do botão
-    cor_normal = (0, 200, 0)
-    cor_hover = (0, 255, 100)
-
-    cor_botao = cor_hover if mouse_hover else cor_normal
-
-    # Efeito sombra leve (fundo mais escuro)
-    sombra_rect = botao_rect.copy()
-    sombra_rect.y += 4
-    pygame.draw.rect(TELA, (0, 100, 0), sombra_rect, border_radius=20)
-
-    # Desenha botão com cor dinâmica
-    pygame.draw.rect(TELA, cor_botao, botao_rect, border_radius=20)
-
-    # Texto START centralizado
+    # Carrega texto e superfícies
     texto_start = FONTE.render("START", True, PRETO)
-    TELA.blit(texto_start, (
-        x_botao + largura_botao // 2 - texto_start.get_width() // 2,
-        y_botao + altura_botao // 2 - texto_start.get_height() // 2
-    ))
+    logo_temp = logo_img.copy()
+    texto_temp = texto_start.copy()
 
-    pygame.display.update()
-    return botao_rect
+    # Fade-in apenas uma vez
+    alpha = 0
+    while alpha < 255:
+        clock.tick(60)
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        TELA.fill(PRETO)
+
+        logo_temp.set_alpha(alpha)
+        texto_temp.set_alpha(alpha)
+
+        # Exibe logo com alpha
+        TELA.blit(logo_temp, (LARGURA//2 - logo_img.get_width()//2, logo_y))
+
+        # Botão com sombra e alpha
+        sombra_rect = botao_rect.copy()
+        sombra_rect.y += 4
+        pygame.draw.rect(TELA, (0, 100, 0), sombra_rect, border_radius=20)
+
+        botao_surface = pygame.Surface((largura_botao, altura_botao), pygame.SRCALPHA)
+        pygame.draw.rect(botao_surface, (0, 200, 0, alpha), botao_surface.get_rect(), border_radius=20)
+        TELA.blit(botao_surface, (x_botao, y_botao))
+
+        TELA.blit(texto_temp, (
+            x_botao + largura_botao // 2 - texto_start.get_width() // 2,
+            y_botao + altura_botao // 2 - texto_start.get_height() // 2
+        ))
+
+        pygame.display.update()
+        alpha += 5
+
+    # Depois do fade, mantém tela fixa com logo e botão completos
+    while True:
+        clock.tick(60)
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif evento.type == pygame.MOUSEBUTTONDOWN:
+                if botao_rect.collidepoint(evento.pos):
+                    return botao_rect
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_hover = botao_rect.collidepoint(mouse_pos)
+        cor_botao = (0, 255, 100) if mouse_hover else (0, 200, 0)
+
+        TELA.fill(PRETO)
+
+        # Logo fixa
+        TELA.blit(logo_img, (LARGURA//2 - logo_img.get_width()//2, logo_y))
+
+        # Sombra e botão normal
+        sombra_rect = botao_rect.copy()
+        sombra_rect.y += 4
+        pygame.draw.rect(TELA, (0, 100, 0), sombra_rect, border_radius=20)
+
+        pygame.draw.rect(TELA, cor_botao, botao_rect, border_radius=20)
+
+        TELA.blit(texto_start, (
+            x_botao + largura_botao // 2 - texto_start.get_width() // 2,
+            y_botao + altura_botao // 2 - texto_start.get_height() // 2
+        ))
+
+        pygame.display.update()
 
 
 
@@ -286,14 +329,9 @@ def jogo():
 # Loop Principal
 while True:
     if estado == TELA_INICIAL:
-        botao_start = tela_inicial()
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif evento.type == pygame.MOUSEBUTTONDOWN:
-                if botao_start.collidepoint(evento.pos):
-                    estado = JOGO
+        tela_inicial()  # Ela já desenha e trata o clique
+        estado = JOGO   # Após clicar no botão, voltamos pra cá e iniciamos o jogo
+
     elif estado == JOGO:
         jogo()
     elif estado == GAME_OVER:
