@@ -6,7 +6,7 @@ pygame.init()
 
 # Carrega o ícone (coloque seu arquivo na mesma pasta ou especifique o caminho)
 try:
-    icon = pygame.image.load('icon.png')  # Pode ser .png, .jpg, .ico, .bmp
+    icon = pygame.image.load('assets/imagens/icon.png')  # Pode ser .png, .jpg, .ico, .bmp
 except:
     print("Erro ao carregar o ícone, usando padrão")
     # Cria um ícone simples como fallback
@@ -29,7 +29,7 @@ VERMELHO = (255, 0, 0)
 
 # Fonte
 try:
-    FONTE = pygame.font.Font("PressStart2P.ttf", 20)
+    FONTE = pygame.font.Font("assets/press-start-2p-font/PressStart2P.ttf", 20)
     # Ou se estiver em uma subpasta:
     # font = pygame.font.Font("assets/fonts/PressStart2P-Regular.ttf", 20)
 except:
@@ -107,14 +107,59 @@ def gerar_conta(fase):
     random.shuffle(opcoes)
     return conta, resultado, opcoes
 
+# carregar imagem da logo
+try:
+    logo_img = pygame.image.load("assets/imagens/logoCosmo.png")
+    logo_img = pygame.transform.scale(logo_img, (380, 65))  # Redimensiona se necessário
+except:
+    print("Erro ao carregar a logo, usando fallback")
+    logo_img = pygame.Surface((300, 150))
+    logo_img.fill((100, 100, 255))  # Um retângulo azul como substituto
+
+
 # Tela Inicial
 def tela_inicial():
     TELA.fill(PRETO)
-    titulo = FONTE.render("Math Shooter", True, BRANCO)
-    botao = FONTE.render("Pressione ENTER para começar", True, BRANCO)
-    TELA.blit(titulo, (LARGURA//2 - titulo.get_width()//2, 200))
-    TELA.blit(botao, (LARGURA//2 - botao.get_width()//2, 300))
+
+    # Exibe logo
+    TELA.blit(logo_img, (LARGURA//2 - logo_img.get_width()//2, 100))
+
+    # Botão START
+    largura_botao = 200
+    altura_botao = 60
+    x_botao = LARGURA // 2 - largura_botao // 2
+    y_botao = 400
+    botao_rect = pygame.Rect(x_botao, y_botao, largura_botao, altura_botao)
+
+    # Detecta posição do mouse para hover
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_hover = botao_rect.collidepoint(mouse_pos)
+
+    # Cores do botão
+    cor_normal = (0, 200, 0)
+    cor_hover = (0, 255, 100)
+
+    cor_botao = cor_hover if mouse_hover else cor_normal
+
+    # Efeito sombra leve (fundo mais escuro)
+    sombra_rect = botao_rect.copy()
+    sombra_rect.y += 4
+    pygame.draw.rect(TELA, (0, 100, 0), sombra_rect, border_radius=20)
+
+    # Desenha botão com cor dinâmica
+    pygame.draw.rect(TELA, cor_botao, botao_rect, border_radius=20)
+
+    # Texto START centralizado
+    texto_start = FONTE.render("START", True, PRETO)
+    TELA.blit(texto_start, (
+        x_botao + largura_botao // 2 - texto_start.get_width() // 2,
+        y_botao + altura_botao // 2 - texto_start.get_height() // 2
+    ))
+
     pygame.display.update()
+    return botao_rect
+
+
 
 # Tela Final
 def tela_final(pontos):
@@ -241,13 +286,14 @@ def jogo():
 # Loop Principal
 while True:
     if estado == TELA_INICIAL:
-        tela_inicial()
+        botao_start = tela_inicial()
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_RETURN:
-                estado = JOGO
+            elif evento.type == pygame.MOUSEBUTTONDOWN:
+                if botao_start.collidepoint(evento.pos):
+                    estado = JOGO
     elif estado == JOGO:
         jogo()
     elif estado == GAME_OVER:
