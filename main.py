@@ -304,7 +304,18 @@ def gerar_opcoes_com_resposta(correta):
 # Lógica principal
 def jogo():
     global estado
-    estrelas_fundo = [(random.randint(0, LARGURA), random.randint(0, ALTURA)) for _ in range(80)]
+    
+    ''' Efeito de estrelas caindo (rapido)
+    estrelas = []
+    for _ in range(60):
+        x = random.randint(0, LARGURA)
+        y = random.randint(0, ALTURA)
+        vel = random.randint(1, 3)  # velocidades diferentes para profundidade
+        estrelas.append([x, y, vel])
+    '''
+    estrelas_fundo = [[random.randint(0, LARGURA), random.randint(0, ALTURA)] for _ in range(80)]
+
+
     nave = Nave()
     tiros = []
     numeros = []
@@ -325,8 +336,30 @@ def jogo():
         clock.tick(FPS)
         TELA.fill(PRETO)
 
+
+        ''' Estrelas caindo (rapido)
+        for estrela in estrelas:
+            estrela[1] += estrela[2]  # movimenta para baixo
+            pygame.draw.circle(TELA, (255, 255, 255), (estrela[0], estrela[1]), 2)
+    
+            # Se sair da tela, reposiciona no topo
+            if estrela[1] > ALTURA:
+                estrela[0] = random.randint(0, LARGURA)
+                estrela[1] = 0
+                estrela[2] = random.randint(1, 3)
+        '''
+
         for estrela in estrelas_fundo:
-            pygame.draw.circle(TELA, (255, 255, 255), estrela, 2)
+            estrela[1] += 0.5  # mesma velocidade da tela final
+
+            if estrela[1] > ALTURA:
+                estrela[1] = 0
+                estrela[0] = random.randint(0, LARGURA)
+
+            pygame.draw.circle(TELA, (255, 255, 255), (int(estrela[0]), int(estrela[1])), 2)
+
+
+
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
