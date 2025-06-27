@@ -20,14 +20,6 @@ pygame.display.set_icon(icon)
 # Tela
 LARGURA, ALTURA = 700, 900
 TELA = pygame.display.set_mode((LARGURA, ALTURA))
-
-
-from nave import Nave
-from tiro import Tiro
-from numero import Numero
-from utils import gerar_conta, gerar_opcoes_com_resposta
-
-
 pygame.display.set_caption("CosmoMath")
 
 # Cores
@@ -55,6 +47,49 @@ nave_img.fill((0, 100, 255))  # Use imagem real aqui se quiser
 # Estados
 TELA_INICIAL, JOGO, GAME_OVER = "inicio", "jogo", "fim"
 estado = TELA_INICIAL
+
+# Classe Nave
+class Nave:
+    def __init__(self):
+        self.rect = nave_img.get_rect(center=(LARGURA//2, ALTURA - 70))
+        self.vel = 5
+        self.vidas = 3
+        self.pontos = 0
+
+    def mover(self, keys):
+        if keys[pygame.K_LEFT] and self.rect.left > 0:
+            self.rect.x -= self.vel
+        if keys[pygame.K_RIGHT] and self.rect.right < LARGURA:
+            self.rect.x += self.vel
+
+    def desenhar(self):
+        TELA.blit(nave_img, self.rect)
+
+# Classe Tiro
+class Tiro:
+    def __init__(self, x, y):
+        self.rect = pygame.Rect(x, y, 5, 15)
+
+    def mover(self):
+        self.rect.y -= 10
+
+    def desenhar(self):
+        pygame.draw.rect(TELA, VERMELHO, self.rect)
+
+# Classe Numero
+class Numero:
+    def __init__(self, valor, x, y):
+        self.valor = valor
+        self.rect = pygame.Rect(x, y, 50, 50)
+        self.acertado = False
+
+    def mover(self):
+        self.rect.y += 1  # velocidade reduzida
+
+    def desenhar(self):
+        pygame.draw.rect(TELA, BRANCO, self.rect)
+        texto = FONTE.render(str(self.valor), True, PRETO)
+        TELA.blit(texto, (self.rect.x + 10, self.rect.y + 10))
 
 # Geração de contas e números
 def gerar_conta(fase):
