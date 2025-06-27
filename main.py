@@ -199,13 +199,13 @@ def tela_inicial():
 
 
 # Tela Final
-def tela_final(pontos):
+def tela_final(nivel):
     clock = pygame.time.Clock()
     estrelas = [(random.randint(0, LARGURA), random.randint(0, ALTURA)) for _ in range(60)]
 
     # Textos
     texto_fim = FONTE.render("MISSÃO ENCERRADA", True, (255, 80, 80))
-    texto_pontos = FONTE.render(f"Pontos: {pontos}", True, (255, 255, 255))
+    texto_pontos = FONTE.render(f"Nível alcançado: {nivel}", True, (255, 255, 255))
     texto_restart = FONTE.render("REINICIAR", True, PRETO)
     texto_sair = FONTE.render("SAIR", True, PRETO)
 
@@ -320,6 +320,7 @@ def jogo():
     tiros = []
     numeros = []
     fase = 1
+    nivel_alcancado = 1
     tempo_entre_numeros = 60  # 60 frames = 1 segundo entre cada número
     tempo_ultimo_numero = 0
 
@@ -418,6 +419,7 @@ def jogo():
 
         # Quando todos já caíram e a lista está vazia, iniciar nova rodada
         if indice_numero == 5 and len(numeros) == 0:
+            nivel_alcancado += 1
             fase += 1 if fase == 1 else 0  # avança só até fase 2
             conta, resultado_certo, _ = gerar_conta(fase)
             grupo_opcoes = gerar_opcoes_com_resposta(resultado_certo)
@@ -478,7 +480,12 @@ def jogo():
 
         if nave.vidas <= 0:
             estado = GAME_OVER
+            tela_final(nivel_alcancado)
             return
+        
+        # Exibir nível no canto superior esquerdo
+        nivel_texto = FONTE.render(f"Nível: {nivel_alcancado}", True, BRANCO)
+        TELA.blit(nivel_texto, (10, 20))
 
         pygame.display.update()
         contador += 1
