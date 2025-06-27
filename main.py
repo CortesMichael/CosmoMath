@@ -293,6 +293,7 @@ def gerar_opcoes_com_resposta(correta):
 # Lógica principal
 def jogo():
     global estado
+    estrelas_fundo = [(random.randint(0, LARGURA), random.randint(0, ALTURA)) for _ in range(80)]
     nave = Nave()
     tiros = []
     numeros = []
@@ -312,6 +313,9 @@ def jogo():
     while True:
         clock.tick(FPS)
         TELA.fill(PRETO)
+
+        for estrela in estrelas_fundo:
+            pygame.draw.circle(TELA, (255, 255, 255), estrela, 2)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
