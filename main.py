@@ -13,6 +13,17 @@ except:
     icon = pygame.Surface((32, 32))
     icon.fill((255, 0, 255))  # Ícone magenta quadrado como fallback
 
+# Coração do jogo
+try:
+    coracao_img = pygame.image.load("assets/imagens/heart.png")
+    coracao_img = pygame.transform.scale(coracao_img, (40, 40))  # redimensiona
+except:
+    print("Erro ao carregar imagem do coração. Usando fallback.")
+    coracao_img = pygame.Surface((30, 30))
+    coracao_img.fill((255, 0, 0))  # fallback vermelho quadrado
+
+
+
 # Define o ícone ANTES de criar a janela
 pygame.display.set_icon(icon)
 
@@ -416,11 +427,22 @@ def jogo():
 
         nave.desenhar()
 
-        # Vidas
-        vidas_texto = FONTE.render(f"Vidas: {nave.vidas}", True, BRANCO)
-        TELA.blit(vidas_texto, (10, 10))
+        # Coordenadas do coração no canto superior direito
+        coracao_x = LARGURA - 100
+        coracao_y = 17
 
-        # Fim do jogo
+        # Desenha o coração
+        TELA.blit(coracao_img, (coracao_x, coracao_y))
+
+        ## Texto de vidas no canto superior direito
+        vidas_texto = FONTE.render(f"{nave.vidas}", True, BRANCO)
+
+        # Coordenadas ajustadas para o canto direito
+        vidas_x = LARGURA - vidas_texto.get_width() - 30  # 20 de margem da borda direita
+        vidas_y = 28  # altura no topo, igual à caixa da conta
+
+        TELA.blit(vidas_texto, (vidas_x, vidas_y))
+
         if nave.vidas <= 0:
             estado = GAME_OVER
             return
