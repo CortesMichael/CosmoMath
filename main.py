@@ -1,85 +1,264 @@
 import pygame
-from Sprites import *
-from Mecanicas import *
+import sys
+import random
 
 pygame.init()
 
-# Tela e controle
-tela = pygame.display.set_mode((800, 600))
+# Carrega o ícone (coloque seu arquivo na mesma pasta ou especifique o caminho)
+try:
+    icon = pygame.image.load('icon.png')  # Pode ser .png, .jpg, .ico, .bmp
+except:
+    print("Erro ao carregar o ícone, usando padrão")
+    # Cria um ícone simples como fallback
+    icon = pygame.Surface((32, 32))
+    icon.fill((255, 0, 255))  # Ícone magenta quadrado como fallback
+
+# Define o ícone ANTES de criar a janela
+pygame.display.set_icon(icon)
+
+
+# Tela
+LARGURA, ALTURA = 700, 900
+TELA = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption("CosmoMath")
-tempo = pygame.time.Clock()
 
-# Estados do jogo
-MENU = "menu"
-JOGO = "jogo"
-GAME_OVER = "game_over"
-estado = MENU
+# Cores
+BRANCO = (255, 255, 255)
+PRETO = (0, 0, 0)
+VERMELHO = (255, 0, 0)
 
-# Pontuação
-pontos = 0
-fonte_pontos = pygame.font.SysFont("Comic Sans", 28)
+# Fonte
+try:
+    FONTE = pygame.font.Font("PressStart2P.ttf", 20)
+    # Ou se estiver em uma subpasta:
+    # font = pygame.font.Font("assets/fonts/PressStart2P-Regular.ttf", 20)
+except:
+    print("Erro ao carregar a fonte, usando fallback")
+    FONTE = pygame.font.SysFont("Arial", 20)
 
-# Nave
-sprite_nave = carregar_nave()
-x_nave, y_nave = 400, 500
+# Clock
+clock = pygame.time.Clock()
+FPS = 60
 
-# Asteroide
-asteroide = Asteroide(400, 0, 1.5)
+# Assets
+nave_img = pygame.Surface((60, 60))
+nave_img.fill((0, 100, 255))  # Use imagem real aqui se quiser
 
-# manter a tela aberta
-rodando = True
-while rodando:
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            rodando = False
+# Estados
+TELA_INICIAL, JOGO, GAME_OVER = "inicio", "jogo", "fim"
+estado = TELA_INICIAL
 
-        if estado == MENU:
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if botao.collidepoint(mouse_pos):
-                    estado = JOGO  # inicia o jogo
+# Classe Nave
+class Nave:
+    def __init__(self):
+        self.rect = nave_img.get_rect(center=(LARGURA//2, ALTURA - 70))
+        self.vel = 5
+        self.vidas = 3
+        self.pontos = 0
 
-        elif estado == JOGO:
-            
+    def mover(self, keys):
+        if keys[pygame.K_LEFT] and self.rect.left > 0:
+            self.rect.x -= self.vel
+        if keys[pygame.K_RIGHT] and self.rect.right < LARGURA:
+            self.rect.x += self.vel
+
+    def desenhar(self):
+        TELA.blit(nave_img, self.rect)
+
+# Classe Tiro
+class Tiro:
+    def __init__(self, x, y):
+        self.rect = pygame.Rect(x, y, 5, 15)
+
+    def mover(self):
+        self.rect.y -= 10
+
+    def desenhar(self):
+        pygame.draw.rect(TELA, VERMELHO, self.rect)
+
+# Classe Numero
+class Numero:
+    def __init__(self, valor, x, y):
+        self.valor = valor
+        self.rect = pygame.Rect(x, y, 50, 50)
+        self.acertado = False
+
+    def mover(self):
+        self.rect.y += 1  # velocidade reduzida
+
+    def desenhar(self):
+        pygame.draw.rect(TELA, BRANCO, self.rect)
+        texto = FONTE.render(str(self.valor), True, PRETO)
+        TELA.blit(texto, (self.rect.x + 10, self.rect.y + 10))
+
+# Geração de contas e números
+def gerar_conta(fase):
+    a = random.randint(1, 9)
+    b = random.randint(1, 9)
+    if fase == 1:
+        op = "+"
+        resultado = a + b
+    else:
+        op = "-"
+        resultado = a - b if a >= b else b - a
+        a, b = max(a, b), min(a, b)
+    conta = f"{a} {op} {b}"
+    opcoes = [resultado, resultado + 1, resultado - 1]
+    random.shuffle(opcoes)
+    return conta, resultado, opcoes
+
+# Tela Inicial
+def tela_inicial():
+    TELA.fill(PRETO)
+    titulo = FONTE.render("Math Shooter", True, BRANCO)
+    botao = FONTE.render("Pressione ENTER para começar", True, BRANCO)
+    TELA.blit(titulo, (LARGURA//2 - titulo.get_width()//2, 200))
+    TELA.blit(botao, (LARGURA//2 - botao.get_width()//2, 300))
+    pygame.display.update()
+
+# Tela Final
+def tela_final(pontos):
+    TELA.fill(PRETO)
+    fim = FONTE.render(f"Fim de Jogo - Pontuação: {pontos}", True, BRANCO)
+    botao = FONTE.render("R para reiniciar ou ESC para sair", True, BRANCO)
+    TELA.blit(fim, (LARGURA//2 - fim.get_width()//2, 200))
+    TELA.blit(botao, (LARGURA//2 - botao.get_width()//2, 300))
+    pygame.display.update()
+
+
+def gerar_opcoes_com_resposta(correta):
+    opcoes = [correta]
+    while len(opcoes) < 5:
+        n = random.randint(correta - 3, correta + 3)
+        if n != correta and n not in opcoes:
+            opcoes.append(n)
+    random.shuffle(opcoes)
+    return opcoes
+
+
+# Lógica principal
+def jogo():
+    global estado
+    nave = Nave()
+    tiros = []
+    numeros = []
+    fase = 1
+    tempo_entre_numeros = 60  # 60 frames = 1 segundo entre cada número
+    tempo_ultimo_numero = 0
+
+
+    conta, resultado_certo, _ = gerar_conta(fase)
+    grupo_opcoes = gerar_opcoes_com_resposta(resultado_certo)
+    posicoes_x = random.sample([100, 200, 300, 400, 500], k=5)
+
+    contador = 0
+    tempo_entre_numeros = 60  # a cada 1 segundo (60 FPS)
+    indice_numero = 0
+
+    while True:
+        clock.tick(FPS)
+        TELA.fill(PRETO)
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
             if evento.type == pygame.KEYDOWN:
-                teclas = pygame.key.get_pressed()
-                x, y = mover_circulo(teclas, x, y)
-                pass
+                if evento.key == pygame.K_SPACE:
+                    tiros.append(Tiro(nave.rect.centerx, nave.rect.top))
 
-        elif estado == GAME_OVER:
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if botao_gameover.collidepoint(mouse_pos):
-                    # Reinicia o jogo
-                    pontos = 0
-                    asteroide = Asteroide(400, 0, 1.5)
-                    estado = JOGO
-                    
-    # Lógica de exibição
-    tela.fill(PRETO)
+        keys = pygame.key.get_pressed()
+        nave.mover(keys)
 
-    if estado == MENU:
-        botao = desenhar_menu(tela)
+        # Mostrar conta
+        conta_texto = FONTE.render(conta, True, BRANCO)
+        TELA.blit(conta_texto, (LARGURA//2 - conta_texto.get_width()//2, 20))
 
+        # Gerar número a cada tempo
+        if indice_numero < 5 and contador - tempo_ultimo_numero >= tempo_entre_numeros:
+            valor = grupo_opcoes[indice_numero]
+            x = posicoes_x[indice_numero]
+            numeros.append(Numero(valor, x, 0))
+            indice_numero += 1
+            tempo_ultimo_numero = contador  # marca o tempo em que esse caiu
+
+
+        # Quando todos já caíram e a lista está vazia, iniciar nova rodada
+        if indice_numero == 5 and len(numeros) == 0:
+            fase += 1 if fase == 1 else 0  # avança só até fase 2
+            conta, resultado_certo, _ = gerar_conta(fase)
+            grupo_opcoes = gerar_opcoes_com_resposta(resultado_certo)
+            posicoes_x = random.sample([100, 200, 300, 400, 500], k=5)
+            indice_numero = 0
+
+        for tiro in tiros[:]:
+            tiro.mover()
+            tiro.desenhar()
+            if tiro.rect.bottom < 0:
+                tiros.remove(tiro)
+
+        for num in numeros[:]:
+            num.mover()
+            num.desenhar()
+
+            # Colisão com a nave
+            if num.rect.colliderect(nave.rect):
+                nave.vidas -= 1
+                numeros.remove(num)
+
+            # Saiu da tela
+            elif num.rect.top > ALTURA:
+                if num.valor == resultado_certo:
+                    nave.vidas -= 1  # perdeu por deixar passar a resposta certa
+                numeros.remove(num)
+
+            for tiro in tiros:
+                if num.rect.colliderect(tiro.rect):
+                    if num.valor == resultado_certo:
+                        nave.pontos += 1
+                        numeros.remove(num)
+                        break
+                    else:
+                        nave.vidas -= 1
+                        numeros.remove(num)
+                        break
+
+        nave.desenhar()
+
+        # Vidas
+        vidas_texto = FONTE.render(f"Vidas: {nave.vidas}", True, BRANCO)
+        TELA.blit(vidas_texto, (10, 10))
+
+        # Fim do jogo
+        if nave.vidas <= 0:
+            estado = GAME_OVER
+            return
+
+        pygame.display.update()
+        contador += 1
+
+
+# Loop Principal
+while True:
+    if estado == TELA_INICIAL:
+        tela_inicial()
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_RETURN:
+                estado = JOGO
     elif estado == JOGO:
-        asteroide.atualizar(tela)
-        desenhar_nave(tela, sprite_nave, x_nave, y_nave)
-        
-        # Atualiza asteroide e nave
-        asteroide.atualizar(tela)
-        desenhar_nave(tela, sprite_nave, x_nave, y_nave)
-        
-        rect_nave = sprite_nave.get_rect(center=(x_nave, y_nave))
-        rect_asteroide = asteroide.sprite.get_rect(center=(asteroide.x, asteroide.y))
-
-        # Mostra pontuação no canto
-        texto_pontos = fonte_pontos.render(f"Pontos: {pontos}", True, BRANCO)
-        tela.blit(texto_pontos, (10, 10))
-        
+        jogo()
     elif estado == GAME_OVER:
-        botao_gameover = desenhar_game_over(tela, pontos)
-    pygame.display.flip()
-    
-    tempo.tick(60)
-
-pygame.quit()
+        tela_final(pontos=0)
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_r:
+                    estado = TELA_INICIAL
+                elif evento.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
