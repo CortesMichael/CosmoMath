@@ -84,9 +84,9 @@ except:
 
 # Tela Inicial
 def tela_inicial():
-    TELA.fill(PRETO)
+    clock = pygame.time.Clock()
 
-    # Posições
+    # Posições e dimensões
     logo_y = 200
     y_botao = 450
     largura_botao = 200
@@ -94,12 +94,15 @@ def tela_inicial():
     x_botao = LARGURA // 2 - largura_botao // 2
     botao_rect = pygame.Rect(x_botao, y_botao, largura_botao, altura_botao)
 
-    # Carrega texto e superfícies
+    # Texto do botão
     texto_start = FONTE.render("START", True, PRETO)
-    logo_temp = logo_img.copy()
     texto_temp = texto_start.copy()
+    logo_temp = logo_img.copy()
 
-    # Fade-in apenas uma vez
+    # Geração de estrelas
+    estrelas = [(random.randint(0, LARGURA), random.randint(0, ALTURA)) for _ in range(60)]
+
+    # Fade-in inicial
     alpha = 0
     while alpha < 255:
         clock.tick(60)
@@ -110,11 +113,15 @@ def tela_inicial():
 
         TELA.fill(PRETO)
 
+        # Estrelas
+        for estrela in estrelas:
+            pygame.draw.circle(TELA, (255, 255, 255), estrela, 2)
+
         logo_temp.set_alpha(alpha)
         texto_temp.set_alpha(alpha)
 
-        # Exibe logo com alpha
-        TELA.blit(logo_temp, (LARGURA//2 - logo_img.get_width()//2, logo_y))
+        # Logo
+        TELA.blit(logo_temp, (LARGURA // 2 - logo_img.get_width() // 2, logo_y))
 
         # Botão com sombra e alpha
         sombra_rect = botao_rect.copy()
@@ -133,7 +140,7 @@ def tela_inicial():
         pygame.display.update()
         alpha += 5
 
-    # Depois do fade, mantém tela fixa com logo e botão completos
+    # Loop após o fade
     while True:
         clock.tick(60)
         for evento in pygame.event.get():
@@ -144,16 +151,28 @@ def tela_inicial():
                 if botao_rect.collidepoint(evento.pos):
                     return botao_rect
 
-        mouse_pos = pygame.mouse.get_pos()
-        mouse_hover = botao_rect.collidepoint(mouse_pos)
-        cor_botao = (0, 255, 100) if mouse_hover else (0, 200, 0)
+        # Animação leve nas estrelas
+        for i in range(len(estrelas)):
+            x, y = estrelas[i]
+            y += 0.5
+            if y > ALTURA:
+                y = 0
+                x = random.randint(0, LARGURA)
+            estrelas[i] = (x, y)
 
         TELA.fill(PRETO)
 
-        # Logo fixa
-        TELA.blit(logo_img, (LARGURA//2 - logo_img.get_width()//2, logo_y))
+        # Estrelas em movimento
+        for estrela in estrelas:
+            pygame.draw.circle(TELA, (255, 255, 255), (int(estrela[0]), int(estrela[1])), 2)
 
-        # Sombra e botão normal
+        # Logo
+        TELA.blit(logo_img, (LARGURA // 2 - logo_img.get_width() // 2, logo_y))
+
+        # Botão com sombra e hover
+        mouse_pos = pygame.mouse.get_pos()
+        cor_botao = (0, 255, 100) if botao_rect.collidepoint(mouse_pos) else (0, 200, 0)
+
         sombra_rect = botao_rect.copy()
         sombra_rect.y += 4
         pygame.draw.rect(TELA, (0, 100, 0), sombra_rect, border_radius=20)
@@ -168,15 +187,97 @@ def tela_inicial():
         pygame.display.update()
 
 
-
 # Tela Final
 def tela_final(pontos):
-    TELA.fill(PRETO)
-    fim = FONTE.render(f"Fim de Jogo - Pontuação: {pontos}", True, BRANCO)
-    botao = FONTE.render("R para reiniciar ou ESC para sair", True, BRANCO)
-    TELA.blit(fim, (LARGURA//2 - fim.get_width()//2, 200))
-    TELA.blit(botao, (LARGURA//2 - botao.get_width()//2, 300))
-    pygame.display.update()
+    clock = pygame.time.Clock()
+    estrelas = [(random.randint(0, LARGURA), random.randint(0, ALTURA)) for _ in range(60)]
+
+    # Textos
+    texto_fim = FONTE.render("MISSÃO ENCERRADA", True, (255, 80, 80))
+    texto_pontos = FONTE.render(f"Pontos: {pontos}", True, (255, 255, 255))
+    texto_restart = FONTE.render("REINICIAR", True, PRETO)
+    texto_sair = FONTE.render("SAIR", True, PRETO)
+
+    # Botões
+    largura_botao = 300
+    altura_botao = 60
+    espaco = 40
+    x_botao = LARGURA // 2 - largura_botao // 2
+    botao_restart = pygame.Rect(x_botao, 360, largura_botao, altura_botao)
+    botao_sair = pygame.Rect(x_botao, 360 + altura_botao + espaco, largura_botao, altura_botao)
+
+    while True:
+        clock.tick(60)
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif evento.type == pygame.MOUSEBUTTONDOWN:
+                if botao_restart.collidepoint(evento.pos):
+                    global estado
+                    estado = "inicio"
+                    return
+                elif botao_sair.collidepoint(evento.pos):
+                    pygame.quit()
+                    sys.exit()
+
+        # Atualizar posições das estrelas (descendo)
+        for i in range(len(estrelas)):
+            x, y = estrelas[i]
+            y += 0.5
+            if y > ALTURA:
+                y = 0
+                x = random.randint(0, LARGURA)
+            estrelas[i] = (x, y)
+
+        TELA.fill(PRETO)
+
+        # Estrelas em movimento
+        for estrela in estrelas:
+            pygame.draw.circle(TELA, (255, 255, 255), (int(estrela[0]), int(estrela[1])), 2)
+
+        # Títulos
+        TELA.blit(texto_fim, (LARGURA // 2 - texto_fim.get_width() // 2, 180))
+        TELA.blit(texto_pontos, (LARGURA // 2 - texto_pontos.get_width() // 2, 240))
+
+        # Hover
+        mouse_pos = pygame.mouse.get_pos()
+        hover_restart = botao_restart.collidepoint(mouse_pos)
+        hover_sair = botao_sair.collidepoint(mouse_pos)
+
+        cor_restart = (0, 255, 100) if hover_restart else (0, 200, 0)
+        cor_sair = (255, 100, 100) if hover_sair else (200, 0, 0)
+
+        # Botão REINICIAR
+        sombra_restart = botao_restart.copy()
+        sombra_restart.y += 4
+        pygame.draw.rect(TELA, (0, 100, 0), sombra_restart, border_radius=20)
+
+        botao_surface_restart = pygame.Surface((largura_botao, altura_botao), pygame.SRCALPHA)
+        pygame.draw.rect(botao_surface_restart, cor_restart, botao_surface_restart.get_rect(), border_radius=20)
+        TELA.blit(botao_surface_restart, (x_botao, botao_restart.y))
+
+        TELA.blit(texto_restart, (
+            botao_restart.centerx - texto_restart.get_width() // 2,
+            botao_restart.centery - texto_restart.get_height() // 2
+        ))
+
+        # Botão SAIR
+        sombra_sair = botao_sair.copy()
+        sombra_sair.y += 4
+        pygame.draw.rect(TELA, (100, 0, 0), sombra_sair, border_radius=20)
+
+        botao_surface_sair = pygame.Surface((largura_botao, altura_botao), pygame.SRCALPHA)
+        pygame.draw.rect(botao_surface_sair, cor_sair, botao_surface_sair.get_rect(), border_radius=20)
+        TELA.blit(botao_surface_sair, (x_botao, botao_sair.y))
+
+        TELA.blit(texto_sair, (
+            botao_sair.centerx - texto_sair.get_width() // 2,
+            botao_sair.centery - texto_sair.get_height() // 2
+        ))
+
+        pygame.display.update()
 
 
 def gerar_opcoes_com_resposta(correta):
