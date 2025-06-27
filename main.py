@@ -67,7 +67,7 @@ def gerar_conta(fase):
         op = "-"
         resultado = a - b if a >= b else b - a
         a, b = max(a, b), min(a, b)
-    conta = f"{a} {op} {b}"
+    conta = f"{a} {op} {b} ?"
     opcoes = [resultado, resultado + 1, resultado - 1]
     random.shuffle(opcoes)
     return conta, resultado, opcoes
@@ -328,17 +328,48 @@ def jogo():
         keys = pygame.key.get_pressed()
         nave.mover(keys)
 
-        # Mostrar conta
+
+        # ---------- CAIXA AZUL DA CONTA COM ESTILO ----------
+        caixa_largura = 200
+        caixa_altura = 40
+        caixa_x = LARGURA // 2 - caixa_largura // 2
+        caixa_y = 45
+
+        # Gradiente vertical bonito (de cima pra baixo)
+        caixa_surface = pygame.Surface((caixa_largura, caixa_altura))
+
+        for y in range(caixa_altura):
+            # Interpola do azul claro (ex: 100,150,255) para azul escuro (0,60,160)
+            r = int(0 + (100 - 0) * (y / caixa_altura))
+            g = int(60 + (150 - 60) * (y / caixa_altura))
+            b = int(160 + (255 - 160) * (y / caixa_altura))
+            pygame.draw.line(caixa_surface, (r, g, b), (0, y), (caixa_largura, y))
+
+        caixa_surface = caixa_surface.convert()
+        caixa_surface.set_colorkey((0, 0, 0))  # Se precisar usar transparência
+
+        # Arredondar a borda aplicando uma máscara com border_radius
+        bordas = pygame.Surface((caixa_largura, caixa_altura), pygame.SRCALPHA)
+        pygame.draw.rect(bordas, (255, 255, 255), bordas.get_rect(), border_radius=20)
+        caixa_surface.blit(bordas, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+
+        TELA.blit(caixa_surface, (caixa_x, caixa_y))
+
+        # Texto centralizado
         conta_texto = FONTE.render(conta, True, BRANCO)
-        TELA.blit(conta_texto, (LARGURA//2 - conta_texto.get_width()//2, 20))
+        conta_x = LARGURA // 2 - conta_texto.get_width() // 2
+        conta_y = caixa_y + caixa_altura // 2 - conta_texto.get_height() // 2
+        TELA.blit(conta_texto, (conta_x, conta_y))
+
 
         # Gerar número a cada tempo
         if indice_numero < 5 and contador - tempo_ultimo_numero >= tempo_entre_numeros:
             valor = grupo_opcoes[indice_numero]
             x = posicoes_x[indice_numero]
-            numeros.append(Numero(valor, x, 0))
+            y_inicial = 90  # nasce abaixo da caixa da conta
+            numeros.append(Numero(valor, x, y_inicial))
             indice_numero += 1
-            tempo_ultimo_numero = contador  # marca o tempo em que esse caiu
+            tempo_ultimo_numero = contador
 
 
         # Quando todos já caíram e a lista está vazia, iniciar nova rodada
