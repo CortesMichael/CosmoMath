@@ -265,16 +265,18 @@ def jogo():
                     nave.vidas -= 1  # perdeu por deixar passar a resposta certa
                 numeros.remove(num)
 
-            for tiro in tiros:
+            for tiro in tiros[:]:  # percorre cópia da lista
                 if num.rect.colliderect(tiro.rect):
+                    tiros.remove(tiro)  # remove o tiro após a colisão
+
                     if num.valor == resultado_certo:
                         nave.pontos += 1
-                        numeros.remove(num)
-                        break
                     else:
                         nave.vidas -= 1
-                        numeros.remove(num)
-                        break
+
+                    numeros.remove(num)  # remove o número também
+                    break  # para não comparar com outros tiros
+
 
         nave.desenhar()
 
