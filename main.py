@@ -334,8 +334,6 @@ def jogo():
             pygame.draw.circle(TELA, (255, 255, 255), (int(estrela[0]), int(estrela[1])), 2)
 
 
-
-
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 pygame.quit()
@@ -394,7 +392,15 @@ def jogo():
         # Quando todos já caíram e a lista está vazia, iniciar nova rodada
         if indice_numero == 5 and len(numeros) == 0:
             nivel_alcancado += 1
-            fase += 1 if fase == 1 else 0  # avança só até fase 2
+            
+            # Lógica de avanço de tipo de conta:
+            if nivel_alcancado <= 5:
+                fase = 1  # soma
+            elif nivel_alcancado <= 10:
+                fase = 2  # subtração
+            else:
+                fase = 3  # multiplicação
+            
             conta, resultado_certo, _ = gerar_conta(fase)
             grupo_opcoes = gerar_opcoes_com_resposta(resultado_certo)
             posicoes_x = random.sample([100, 200, 300, 400, 500], k=5)
