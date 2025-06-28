@@ -19,7 +19,7 @@ class Numero:
         self.surface = self._gerar_gradiente()
 
     def mover(self):
-        self.rect.y += 1
+        self.rect.y += 2.2
 
     def desenhar(self):
         tela = pygame.display.get_surface()

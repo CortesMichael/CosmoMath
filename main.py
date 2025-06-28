@@ -327,10 +327,10 @@ def jogo():
 
     conta, resultado_certo, _ = gerar_conta(fase)
     grupo_opcoes = gerar_opcoes_com_resposta(resultado_certo)
-    posicoes_x = random.sample([100, 200, 300, 400, 500], k=5)
+    posicoes_x = random.sample([10, 150, 290, 430, 550], k=5)
 
     contador = 0
-    tempo_entre_numeros = 60  # a cada 1 segundo (60 FPS)
+    tempo_entre_numeros = 75  # a cada 1 segundo (60 FPS)
     indice_numero = 0
 
     while True:
