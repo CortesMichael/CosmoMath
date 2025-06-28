@@ -10,7 +10,6 @@ def gerar_conta(fase):
         op = "-"
         resultado = a - b if a >= b else b - a
         a, b = max(a, b), min(a, b)
-
     conta = f"{a} {op} {b} ?"
     opcoes = [resultado, resultado + 1, resultado - 1]
     random.shuffle(opcoes)

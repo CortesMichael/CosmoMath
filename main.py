@@ -67,22 +67,6 @@ nave_img.fill((0, 100, 255))  # Use imagem real aqui se quiser
 TELA_INICIAL, JOGO, GAME_OVER = "inicio", "jogo", "fim"
 estado = TELA_INICIAL
 
-# Geração de contas e números
-def gerar_conta(fase):
-    a = random.randint(1, 9)
-    b = random.randint(1, 9)
-    if fase == 1:
-        op = "+"
-        resultado = a + b
-    else:
-        op = "-"
-        resultado = a - b if a >= b else b - a
-        a, b = max(a, b), min(a, b)
-    conta = f"{a} {op} {b} ?"
-    opcoes = [resultado, resultado + 1, resultado - 1]
-    random.shuffle(opcoes)
-    return conta, resultado, opcoes
-
 # carregar imagem da logo
 try:
     logo_img = pygame.image.load("assets/imagens/logoCosmo.png")
@@ -291,16 +275,6 @@ def tela_final(nivel):
         pygame.display.update()
 
 
-def gerar_opcoes_com_resposta(correta):
-    opcoes = [correta]
-    while len(opcoes) < 5:
-        n = random.randint(correta - 3, correta + 3)
-        if n != correta and n not in opcoes:
-            opcoes.append(n)
-    random.shuffle(opcoes)
-    return opcoes
-
-
 # Lógica principal
 def jogo():
     global estado
@@ -330,7 +304,7 @@ def jogo():
     posicoes_x = random.sample([10, 150, 290, 430, 550], k=5)
 
     contador = 0
-    tempo_entre_numeros = 75  # a cada 1 segundo (60 FPS)
+    tempo_entre_numeros = 70  # a cada 1 segundo (60 FPS)
     indice_numero = 0
 
     while True:
