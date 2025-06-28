@@ -464,7 +464,7 @@ def jogo():
 
         # Coordenadas do coração no canto superior direito
         coracao_x = LARGURA - 100
-        coracao_y = 17
+        coracao_y = 10
 
         # Desenha o coração
         TELA.blit(coracao_img, (coracao_x, coracao_y))
@@ -474,7 +474,7 @@ def jogo():
 
         # Coordenadas ajustadas para o canto direito
         vidas_x = LARGURA - vidas_texto.get_width() - 30  # 20 de margem da borda direita
-        vidas_y = 28  # altura no topo, igual à caixa da conta
+        vidas_y = 20  # altura no topo, igual à caixa da conta
 
         TELA.blit(vidas_texto, (vidas_x, vidas_y))
 
