@@ -90,7 +90,7 @@ def tela_inicial():
     botao_rect = pygame.Rect(x_botao, y_botao, largura_botao, altura_botao)
 
     # Texto do botão
-    texto_start = FONTE.render("START", True, PRETO)
+    texto_start = FONTE.render("INICIAR", True, PRETO)
     texto_temp = texto_start.copy()
     logo_temp = logo_img.copy()
 
