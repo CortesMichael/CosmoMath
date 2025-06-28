@@ -3,7 +3,6 @@ import pygame
 LARGURA, ALTURA = 700, 900
 TELA = pygame.display.get_surface()
 
-# Tenta carregar a imagem da nave
 try:
     nave_img = pygame.image.load("assets/imagens/spaceship.png")
     nave_img = pygame.transform.scale(nave_img, (60, 60))  # redimensiona, se necessário

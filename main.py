@@ -4,16 +4,14 @@ import random
 
 pygame.init()
 
-# Carrega o ícone (coloque seu arquivo na mesma pasta ou especifique o caminho)
 try:
-    icon = pygame.image.load('assets/imagens/icon.png')  # Pode ser .png, .jpg, .ico, .bmp
+    icon = pygame.image.load('assets/imagens/icon.png')  
 except:
     print("Erro ao carregar o ícone, usando padrão")
     # Cria um ícone simples como fallback
     icon = pygame.Surface((32, 32))
     icon.fill((255, 0, 255))  # Ícone magenta quadrado como fallback
 
-# Coração do jogo
 try:
     coracao_img = pygame.image.load("assets/imagens/heart.png")
     coracao_img = pygame.transform.scale(coracao_img, (40, 40))  # redimensiona
@@ -23,8 +21,6 @@ except:
     coracao_img.fill((255, 0, 0))  # fallback vermelho quadrado
 
 
-
-# Define o ícone ANTES de criar a janela
 pygame.display.set_icon(icon)
 
 
@@ -49,8 +45,7 @@ VERMELHO = (255, 0, 0)
 # Fonte
 try:
     FONTE = pygame.font.Font("assets/press-start-2p-font/PressStart2P.ttf", 20)
-    # Ou se estiver em uma subpasta:
-    # font = pygame.font.Font("assets/fonts/PressStart2P-Regular.ttf", 20)
+
 except:
     print("Erro ao carregar a fonte, usando fallback")
     FONTE = pygame.font.SysFont("Arial", 20)
@@ -61,7 +56,7 @@ FPS = 60
 
 # Assets
 nave_img = pygame.Surface((60, 60))
-nave_img.fill((0, 100, 255))  # Use imagem real aqui se quiser
+nave_img.fill((0, 100, 255))  
 
 # Estados
 TELA_INICIAL, JOGO, GAME_OVER = "inicio", "jogo", "fim"
@@ -295,16 +290,15 @@ def jogo():
     numeros = []
     fase = 1
     nivel_alcancado = 1
-    tempo_entre_numeros = 60  # 60 frames = 1 segundo entre cada número
+    tempo_entre_numeros = 60  
     tempo_ultimo_numero = 0
-
 
     conta, resultado_certo, _ = gerar_conta(fase)
     grupo_opcoes = gerar_opcoes_com_resposta(resultado_certo)
     posicoes_x = random.sample([10, 150, 290, 430, 550], k=5)
 
     contador = 0
-    tempo_entre_numeros = 70  # a cada 1 segundo (60 FPS)
+    tempo_entre_numeros = 70  # tempo que os cometas caem
     indice_numero = 0
 
     while True:
@@ -352,7 +346,6 @@ def jogo():
         caixa_x = LARGURA // 2 - caixa_largura // 2
         caixa_y = 45
 
-        # Gradiente vertical bonito (de cima pra baixo)
         caixa_surface = pygame.Surface((caixa_largura, caixa_altura))
 
         for y in range(caixa_altura):
@@ -363,7 +356,7 @@ def jogo():
             pygame.draw.line(caixa_surface, (r, g, b), (0, y), (caixa_largura, y))
 
         caixa_surface = caixa_surface.convert()
-        caixa_surface.set_colorkey((0, 0, 0))  # Se precisar usar transparência
+        caixa_surface.set_colorkey((0, 0, 0))  
 
         # Arredondar a borda aplicando uma máscara com border_radius
         bordas = pygame.Surface((caixa_largura, caixa_altura), pygame.SRCALPHA)
@@ -453,8 +446,8 @@ def jogo():
         vidas_texto = FONTE.render(f"{nave.vidas}", True, BRANCO)
 
         # Coordenadas ajustadas para o canto direito
-        vidas_x = LARGURA - vidas_texto.get_width() - 30  # 20 de margem da borda direita
-        vidas_y = 20  # altura no topo, igual à caixa da conta
+        vidas_x = LARGURA - vidas_texto.get_width() - 30  
+        vidas_y = 20 
 
         TELA.blit(vidas_texto, (vidas_x, vidas_y))
 
@@ -474,8 +467,8 @@ def jogo():
 # Loop Principal
 while True:
     if estado == TELA_INICIAL:
-        tela_inicial()  # Ela já desenha e trata o clique
-        estado = JOGO   # Após clicar no botão, voltamos pra cá e iniciamos o jogo
+        tela_inicial()  
+        estado = JOGO   
 
     elif estado == JOGO:
         jogo()

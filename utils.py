@@ -15,8 +15,8 @@ def gerar_conta(fase):
         a, b = max(a, b), min(a, b)
 
     else:
-        a = random.randint(2, 9 + fase // 2)  # cresce com o tempo
-        b = random.randint(2, 9 + fase // 2)
+        a = random.randint(2, 9)  
+        b = random.randint(2, 9)
         op = "x"
         resultado = a * b
 
