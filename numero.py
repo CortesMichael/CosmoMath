@@ -14,7 +14,7 @@ except:
 class Numero:
     def __init__(self, valor, x, y):
         self.valor = valor
-        self.rect = pygame.Rect(x, y, 50, 50)
+        self.rect = pygame.Rect(x, y, 65, 65)
         self.acertado = False
         self.surface = self._gerar_gradiente()
 
